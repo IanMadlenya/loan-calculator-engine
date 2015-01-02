@@ -1,6 +1,6 @@
 {
   "name": "financial-loan-calculator-engine",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Financial Loan Calculator Engine",
   "author": {
     "name": "Pablo De Nadai",
@@ -20,7 +20,7 @@
   ],
   "dependencies": {
     "lodash": "^2.4.1",
-    "financial-calculator-engine": "~0.0.2"
+    "financial-calculator-engine": "~0.0.3"
   },
   "devDependencies": {
     "browserify": "^7.0.0",
