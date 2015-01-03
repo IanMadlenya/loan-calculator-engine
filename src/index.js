@@ -2,23 +2,21 @@
 
 var _ = require('lodash');
 
-var Financial = require('financial-calculator-engine'),
-	CalculatorEngine = Financial.CalculatorEngine;
+var CalculatorEngine = require('financial-calculator-engine'),
+	CalculatorEngineMath = require('financial-calculator-engine/math');
 
-//
 class LoanContext {
 	constructor(context) {
-		super();
+		var config = CalculatorEngine.config();
 
 		this.principal = 0;
 		this.interestRate = 0;
-		this.interestRateFrequency = Financial.config.frequency.year;
+		this.interestRateFrequency = config.frequency.year;
 		this.term = 0;
-		this.termFrequency = Financial.config.frequency.year;
-		this.repaymentFrequency = Financial.config.frequency.month;
+		this.termFrequency = config.frequency.year;
+		this.repaymentFrequency = config.frequency.month;
 
-		// ES6 comes with Object.assign();
-		_.assign(this, context);
+		_.merge(this, context);
 	}
 
 	// Calculate the interest rate per period.
@@ -52,22 +50,16 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		this.__baseContext = new LoanContext(context);
 	}
 
-	__flattenContext(operatorsList) {
+	__flattenContext(operatorsContextList) {
 		// Instanciate new context
 		var target = new LoanContext();
-
-		// Extract contexts from operators list
-		var operatorsContextList = operatorsList.map(function(operator) {
-			return operator.context;
-		});
 
 		// Create an array with all contexts to be flattened
 		// [target, __baseContext, ...operatorContext]
 		var contextStack = [target, this.__baseContext].concat(operatorsContextList);
 
 		// Flatten contexts by merging/assigning all properties into the target context
-		// ES6 has with Object.assign();
-		_.assign.apply(_, contextStack);
+		_.merge.apply(_, contextStack);
 
 		// Return the target object
 		return target;
@@ -75,7 +67,13 @@ class LoanCalculatorEngine extends CalculatorEngine {
 
 	getContextAt(period) {
 		var operatorsList = this.getOperatorsAt(period);
-		return this.__flattenContext(operatorsList);
+
+		// Extract contexts from operators list
+		var operatorsContextList = operatorsList.map(function(operator) {
+			return operator.context;
+		});
+
+		return this.__flattenContext(operatorsContextList);
 	}
 
 	calculate() {
@@ -103,9 +101,10 @@ class LoanCalculatorEngine extends CalculatorEngine {
 			var interestRate = currentContext.getEffInterestRate(),
 				numberOfPeriodsLeft = numberOfPeriods - currentPeriod + 1;
 
-			var pmt = Financial.pmt(
+			var pmt = CalculatorEngineMath.pmt(
 				previousPrincipalFinalBalance,
-				interestRate, numberOfPeriodsLeft
+				interestRate,
+				numberOfPeriodsLeft
 			);
 
 			// Create summary item
