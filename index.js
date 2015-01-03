@@ -16,7 +16,7 @@ var _inherits = function (child, parent) {
 
 var _ = require("lodash");
 
-var CalculatorEngine = require("financial-calculator-engine"), CalculatorEngineMath = require("financial-calculator-engine/math");
+var CalculatorEngine = require("financial-calculator-engine"), CalculatorEngineMath = require("financial-calculator-engine/lib/math");
 
 var LoanContext = function LoanContext(context) {
   var config = CalculatorEngine.config();

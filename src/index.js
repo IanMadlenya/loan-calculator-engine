@@ -3,7 +3,7 @@
 var _ = require('lodash');
 
 var CalculatorEngine = require('financial-calculator-engine'),
-	CalculatorEngineMath = require('financial-calculator-engine/math');
+	CalculatorEngineMath = require('financial-calculator-engine/lib/math');
 
 class LoanContext {
 	constructor(context) {
