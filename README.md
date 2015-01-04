@@ -1,6 +1,6 @@
 # loan-calculator-engine
 
-> Loan repayment calculator engine. Calculates ammortization table, repayment amount and interest paid.
+> Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
 
 ## Install
 
