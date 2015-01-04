@@ -40,4 +40,4 @@ var results = loan.calculate();
 
 ## License
 
-MIT © [Pablo De Nadai](pablodenadai.com)
+MIT © [Pablo De Nadai](www.pablodenadai.com)
