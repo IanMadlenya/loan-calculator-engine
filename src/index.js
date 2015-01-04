@@ -5,6 +5,8 @@ var _ = require('lodash');
 var CalculatorEngine = require('financial-calculator-engine'),
 	CalculatorEngineMath = require('financial-calculator-engine/lib/math');
 
+// Loan Context class
+// Core values used in the calculation ie. `principal`, `term`...
 class LoanContext {
 	constructor(context) {
 		var config = CalculatorEngine.config();
@@ -16,21 +18,31 @@ class LoanContext {
 		this.termFrequency = config.frequency.year;
 		this.repaymentFrequency = config.frequency.month;
 
+		// Extend default values with the options passed in.
 		_.merge(this, context);
 	}
 
 	// Calculate the interest rate per period.
 	getEffInterestRate() {
-		return this.interestRate * this.interestRateFrequency / this.repaymentFrequency;
+		return CalculatorEngineMath.effInterestRate(
+			this.interestRate,
+			this.interestRateFrequency,
+			this.repaymentFrequency
+		);
 	}
 
 	// Calculate the total number of periods for a given loan.
 	getEffTerm() {
-		return this.term / this.termFrequency * this.repaymentFrequency;
+		return CalculatorEngineMath.effTerm(
+			this.term,
+			this.termFrequency,
+			this.repaymentFrequency
+		);
 	}
 }
 
-//
+// Loan Summary Item class
+// Used to store the calculation results ie. ammortization table
 class LoanSummaryItem {
 	constructor(periodAt) {
 		this.period = periodAt;
@@ -42,46 +54,41 @@ class LoanSummaryItem {
 	}
 }
 
+// Loan Calculator Engine class
+// Calculates a loan and its ammortization table.
+// Example:
+// ```
+// var LoanCalculatorEngine = require('financial-loan-calculator-engine');
 //
+// var loan = new LoanCalculatorEngine({
+// 	principal: 100000,
+// 	interestRate: 0.01,
+// 	term: 10
+// });
+//
+// var results = loan.calculate();
+// ```
 class LoanCalculatorEngine extends CalculatorEngine {
 	constructor(context) {
-		super();
+		super(context);
 
 		this.__baseContext = new LoanContext(context);
 	}
 
-	__flattenContext(operatorsContextList) {
-		// Instanciate new context
-		var target = new LoanContext();
-
-		// Create an array with all contexts to be flattened
-		// [target, __baseContext, ...operatorContext]
-		var contextStack = [target, this.__baseContext].concat(operatorsContextList);
-
-		// Flatten contexts by merging/assigning all properties into the target context
-		_.merge.apply(_, contextStack);
-
-		// Return the target object
-		return target;
-	}
-
+	// Returns a single object representing the current loan calculation state.
 	getContextAt(period) {
-		var operatorsList = this.getOperatorsAt(period);
-
-		// Extract contexts from operators list
-		var operatorsContextList = operatorsList.map(function(operator) {
-			return operator.context;
-		});
-
-		return this.__flattenContext(operatorsContextList);
+		var context = super.getContextAt(period);
+		return new LoanContext(context);
 	}
 
+	// Calculates a loan and its ammortization table.
+	// Calculations is done on per period basis.
 	calculate() {
 		var numberOfPeriods = this.__baseContext.getEffTerm();
 
 		var summaryList = [],
-			summaryItem,
-			previousSummaryItem;
+			summaryItem = null,
+			previousSummaryItem = null;
 
 		for (var currentPeriod = 1; currentPeriod <= numberOfPeriods; currentPeriod++) {
 			if (currentPeriod > 1) {
