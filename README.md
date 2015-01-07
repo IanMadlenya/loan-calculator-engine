@@ -1,3 +1,5 @@
+# Stop! This is an experimental project and it's only early days. Please come back in a couple of weeks. :-)
+
 # loan-calculator-engine
 
 > Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
