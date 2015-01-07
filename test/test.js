@@ -8,14 +8,29 @@ var LoanCalculatorEngine = require('../.');
 
 describe('LoanCalculatorEngine', function() {
 	it('must calculate total pmt', function() {
-		var loan = new LoanCalculatorEngine({
-			principal: 100000,
-			interestRate: 0.01,
-			term: 10
-		});
+		var loan = new LoanCalculatorEngine();
 
-		var results = loan.calculate();
+		var results = loan
+			// .use(function(instance) {})
+			// .config({})
+			.context({
+				principal: 100000,
+				interestRate: 0.1,
+				term: 10
+			})
+			// .interestRate({})
+			.calculate();
 
-		assert.equal(105124.94564418306, results.totals.pmt);
+		require('console.table');
+		console.log('\n', 'summaryList');
+		console.table(results.summaryList);
+
+		console.log('\n', 'contextList');
+		console.log(results.contextList[0]);
+
+		console.log('\n', 'totals')
+		console.log(results.totals);
+
+		assert(true);
 	});
 });
