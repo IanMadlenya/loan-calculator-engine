@@ -2,11 +2,10 @@
 
 var _ = require('lodash');
 
-// var CalculatorEngine = require('./../calculator-engine'),
-// 	CalculatorEngineMath = require('./../calculator-engine/lib/math');
-
-var CalculatorEngine = require('financial-calculator-engine'),
-	CalculatorEngineMath = require('financial-calculator-engine/lib/math');
+var CalculatorEngine = require('./../calculator-engine'),
+	CalculatorEngineMath = require('./../calculator-engine/lib/math'),
+	InterestRateOperator = require('./../interest-rate-operator'),
+	ExtraRepaymentOperator = require('./../extra-repayment-operator');
 
 // Loan Context class
 // Input values used in the calculation ie. `principal`, `term`...
@@ -35,6 +34,7 @@ class LoanContext {
 		// Extend default values with the options passed in.
 		_.merge(this, defaults, context);
 
+		// TODO: Review eff calc. Can it be done is a more module fashion?
 		// Calculate the total number of periods for a given loan.
 		this.effTerm = CalculatorEngineMath.effTerm(
 			this.term,
@@ -63,7 +63,6 @@ class LoanSummary {
 	constructor(periodAt) {
 		this.period = periodAt;
 		this.principalBalance = 0;
-		this.effPrincipalBalance = 0;
 		this.interestBalance = 0;
 		this.interestPaid = 0;
 		this.principalPaid = 0;
@@ -86,12 +85,17 @@ class LoanSummary {
 // var results = loan.calculate();
 // ```
 class LoanCalculatorEngine extends CalculatorEngine {
-	constructor() {
-		super();
+	constructor(options) {
+		super(options);
 
 		this.config({
-			stopAtZeroPV: true
+			isSavingsMode: false
 		});
+
+		this.use.apply(this, [
+			ExtraRepaymentOperator,
+			InterestRateOperator
+		]);
 	}
 
 	context(options) {
@@ -101,32 +105,29 @@ class LoanCalculatorEngine extends CalculatorEngine {
 	// Calculates a loan and its ammortization table.
 	// Calculations is done on per period basis.
 	calculate() {
-		var period = 1,
-			principalBalance = this.__context.principal,
-			effPrincipalBalance = this.__context.principal,
-			effTerm = this.__context.effTerm;
+		var principalBalance = this.__context.principal;
 
 		var summaryList = [],
 			contextList = [];
 
-		for (var period = 0; period <= effTerm; period++) {
+		for (var period = 0; period <= this.__context.effTerm; period++) {
 			var context = new LoanContext(this.__context, this.__config);
+
 
 			var operators = this.getOperatorsAt(period);
 			operators.forEach(function(operator) {
-				operator.process(context);
+				operator.process(period, context, principalBalance);
 			});
 
-			var summary = this.__calculateAt(period, context, principalBalance, effPrincipalBalance);
+			var summary = this.__calculateAt(period, context, principalBalance);
 
 			summaryList.push(summary);
 			contextList.push(context);
 
 			principalBalance = summary.principalBalance;
-			effPrincipalBalance = summary.effPrincipalBalance;
 
 			// Might not calculate the entire effTerm ie. loan has extra repayment or off set. 
-			if (this.__config.stopAtZeroPV && principalBalance <= 0) {
+			if (!this.__config.isSavingsMode && principalBalance <= 0) {
 				break;
 			}
 		}
@@ -148,33 +149,32 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		};
 	}
 
-	__calculateAt(period, context, principalBalance, effPrincipalBalance) {
-		var summary = new LoanSummary(period),
-			isInitialPeriod = (period == 0);
+	__calculateAt(period, context, principalBalance) {
+		var summary = new LoanSummary(period);
 
+		var isInitialPeriod = (period === 0);
 		if (isInitialPeriod) {
 			summary.principalBalance = principalBalance;
-			summary.effPrincipalBalance = principalBalance;
 			return summary;
 		}
 
 		var effInterestRate = context.effInterestRate,
 			effExtraRepayment = context.effExtraRepayment,
-			effTermRemaining = context.effTerm - period + 1,
-			repayment = context.repayment;
+			effTermRemaining = context.effTerm - period + 1;
 
 		// Repayment
-		var hasRepayment = (!!context.repayment);
+		var repayment = context.repayment,
+			hasRepayment = (!!repayment);
 
 		if (!hasRepayment) {
 			var isInterestOnlyRepayment =
 				(context.repaymentType === LoanCalculatorEngine.repaymentType.interestOnly);
 
 			if (isInterestOnlyRepayment) {
-				repayment = effPrincipalBalance * effInterestRate;
+				repayment = principalBalance * effInterestRate;
 			} else {
 				repayment = CalculatorEngineMath.pmt(
-					effPrincipalBalance,
+					principalBalance,
 					effInterestRate,
 					effTermRemaining
 				);
@@ -183,21 +183,25 @@ class LoanCalculatorEngine extends CalculatorEngine {
 
 		repayment += effExtraRepayment;
 
-		// Interest Paid
-		var interestPaid = effPrincipalBalance * effInterestRate;
+		// Interest and Principal Paid
+		var interestPaid = principalBalance * effInterestRate,
+			principalPaid = 0;
 
-		// Principal Paid
-		var principalPaid =
-			Math.min(
-				principalBalance,
-				repayment - interestPaid
-			);
+		if (!this.__config.isSavingsMode) {
+			if (repayment > principalBalance) {
+				repayment = principalBalance + interestPaid;
+			}
+
+			principalPaid = repayment - interestPaid;
+			principalBalance = principalBalance - principalPaid;
+		} else {
+			principalBalance = principalBalance + repayment + interestPaid;
+		}
 
 		summary.repayment = repayment;
 		summary.interestPaid = interestPaid;
 		summary.principalPaid = principalPaid;
-		summary.principalBalance = principalBalance - principalPaid;
-		summary.effPrincipalBalance = effPrincipalBalance - principalPaid + effExtraRepayment;
+		summary.principalBalance = principalBalance;
 		return summary;
 	}
 
@@ -206,10 +210,15 @@ class LoanCalculatorEngine extends CalculatorEngine {
 	}
 
 	__calculateInterestBalance(summaryList, totals) {
-		var interestBalance = totals.interestPaid;
+		var isSavingsMode = this.__config.isSavingsMode;
+
+		var interestBalance = isSavingsMode ? 0 : totals.interestPaid;
 
 		summaryList.forEach(function(summary) {
-			interestBalance -= summary.interestPaid;
+			interestBalance -= isSavingsMode ?
+				summary.interestPaid * -1 :
+				summary.interestPaid;
+
 			summary.interestBalance = interestBalance;
 		});
 	}
