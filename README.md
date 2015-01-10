@@ -76,7 +76,7 @@ var results = loan
 	.calculate();
 ```
 
-### Savings (It will have it's own Engine later on)
+### Savings (It will have its own Engine later on)
 
 ```javascript
 var savings = new LoanCalculatorEngine({
