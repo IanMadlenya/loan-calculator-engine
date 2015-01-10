@@ -17,11 +17,11 @@ gulp.task('jshint', ['6to5'], function() {
 });
 
 gulp.task('mocha', ['jshint'], function() {
-	return gulp.src('test/*.js', {
+	return gulp.src('test/**/*.js', {
 			read: false
 		})
 		.pipe(mocha({
-			reporter: 'progress'
+			reporter: 'nyan'
 		}));
 });
 
