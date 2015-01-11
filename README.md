@@ -1,5 +1,3 @@
-# Stop! This is an experimental project and it's only early days. Please come back later. :-)
-
 # loan-calculator-engine
 
 > Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
@@ -92,6 +90,13 @@ var results = savings
 	})
 	.calculate();
 ```
+
+## To do
+- savings-calculator-engine
+- term-deposit-calculator-engine
+- borrowing-power-calculator-engine
+- offset-operator
+- fee-operator
 
 ## License
 
