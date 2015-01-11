@@ -1,4 +1,4 @@
-# Stop! This is an experimental project and it's only early days. Please come back in a couple of days. :-)
+# Stop! This is an experimental project and it's only early days. Please come back later. :-)
 
 # loan-calculator-engine
 
@@ -11,7 +11,6 @@ $ npm install --save financial-loan-calculator-engine
 ```
 
 ## Usage
-
 
 ```javascript
 var LoanCalculatorEngine = require('financial-loan-calculator-engine');
@@ -76,7 +75,8 @@ var results = loan
 	.calculate();
 ```
 
-### Savings (It will have its own Engine later on)
+### Savings
+It'll have its own Engine later on.
 
 ```javascript
 var savings = new LoanCalculatorEngine({

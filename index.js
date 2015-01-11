@@ -20,9 +20,9 @@ var CalculatorEngine = require("financial-calculator-engine"), CalculatorEngineM
 
 var InterestRateOperator = require("./operators/interest-rate-operator"), ExtraRepaymentOperator = require("./operators/extra-repayment-operator");
 
-// Loan Context class
-// Input values used in the calculation ie. `principal`, `term`.
-var LoanContext = function LoanContext(context, config) {
+// Loan Context
+// Holds the input values used in this calculator ie. `principal`, `interestRate`.
+var LoanContext = function LoanContext(options, config) {
   var defaults = {
     principal: 0,
 
@@ -40,7 +40,7 @@ var LoanContext = function LoanContext(context, config) {
   };
 
   // Extend default values with the options passed in.
-  _.merge(this, defaults, context);
+  _.merge(this, defaults, options);
 
   this.normalizeValues();
 };
@@ -53,8 +53,8 @@ LoanContext.prototype.normalizeValues = function () {
   this.effTerm = CalculatorEngineMath.effTerm(this.term, this.termFrequency, this.repaymentFrequency);
 };
 
-// Loan Summary Item class
-// Used to store the calculation results ie. ammortization table
+// Loan Summary
+// Used to store the calculation results ie. amortization table
 var LoanSummary = function LoanSummary(periodAt) {
   this.period = periodAt;
   this.principalBalance = 0;
@@ -64,7 +64,7 @@ var LoanSummary = function LoanSummary(periodAt) {
   this.repayment = 0;
 };
 
-// Loan Calculator Engine class
+// Loan Calculator Engine
 // Calculates a loan and its ammortization table.
 // Example:
 // ```
@@ -72,7 +72,7 @@ var LoanSummary = function LoanSummary(periodAt) {
 //
 // var loan = new LoanCalculatorEngine({
 // 	principal: 100000,
-// 	interestRate: 0.01,
+// 	interestRate: 0.1,
 // 	term: 10
 // });
 //
@@ -240,6 +240,7 @@ var LoanCalculatorEngine = (function () {
   return LoanCalculatorEngine;
 })();
 
+// Consts - static objects.
 LoanCalculatorEngine.repaymentType = {
   interestOnly: "IO",
   principalAndInterest: "PI"

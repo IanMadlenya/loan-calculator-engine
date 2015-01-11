@@ -6,24 +6,6 @@ var assert = require('assert');
 
 var LoanCalculatorEngine = require('../.');
 
-// Savings
-// var loan = new LoanCalculatorEngine({
-// 	principal: 500,
-// 	interestRate: 0.1,
-// 	term: 10,
-// 	repayment: 100
-// });
-
-// var results = loan
-// 	.config({
-// 		isSavingsMode: true
-// 	})
-// 	.calculate();
-
-
-// ---
-
-
 // Simple Loan + PI
 var loan = new LoanCalculatorEngine({
 	principal: 100000,
@@ -33,6 +15,7 @@ var loan = new LoanCalculatorEngine({
 
 var results = loan.calculate();
 
+// ---
 
 // Simple Loan + IO
 // var loan = new LoanCalculatorEngine({
@@ -44,9 +27,7 @@ var results = loan.calculate();
 
 // var results = loan.calculate();
 
-
 // ---
-
 
 // Intro Rate + PI
 // var loan = new LoanCalculatorEngine({
@@ -62,6 +43,7 @@ var results = loan.calculate();
 // 	})
 // 	.calculate();
 
+// ---
 
 // Intro Rate + IO
 // var loan = new LoanCalculatorEngine({
@@ -78,9 +60,7 @@ var results = loan.calculate();
 // 	})
 // 	.calculate();
 
-
 // ---
-
 
 // Simple Loan + Extra Repayment + PI
 // var loan = new LoanCalculatorEngine({
@@ -96,9 +76,7 @@ var results = loan.calculate();
 // 	})
 // 	.calculate();
 
-
 // ---
-
 
 // Intro Rate + Extra Repayment + PI
 // var loan = new LoanCalculatorEngine({
@@ -115,6 +93,22 @@ var results = loan.calculate();
 // 	.interestRate({
 // 		endPeriod: 24,
 // 		interestRate: 0.15
+// 	})
+// 	.calculate();
+
+// ---
+
+// Savings
+// var loan = new LoanCalculatorEngine({
+// 	principal: 500,
+// 	interestRate: 0.1,
+// 	term: 10,
+// 	repayment: 100
+// });
+
+// var results = loan
+// 	.config({
+// 		isSavingsMode: true
 // 	})
 // 	.calculate();
 
