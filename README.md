@@ -39,7 +39,7 @@ var loan = new LoanCalculatorEngine({
 var results = loan.calculate();
 ```
 
-### Multiple Interest Rates - Intro Rate
+### Interest Intro Rate
 
 ```javascript
 var loan = new LoanCalculatorEngine({
@@ -90,13 +90,6 @@ var results = savings
 	})
 	.calculate();
 ```
-
-## To do
-- savings-calculator-engine
-- term-deposit-calculator-engine
-- borrowing-power-calculator-engine
-- offset-operator
-- fee-operator
 
 ## License
 
