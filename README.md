@@ -91,6 +91,11 @@ var results = savings
 	.calculate();
 ```
 
+## To do
+
+- offset-operator
+- fee-operator
+
 ## License
 
 MIT © [Pablo De Nadai](http://pablodenadai.com)
