@@ -91,7 +91,7 @@ var results = loan
 ```
 
 ### Savings
-It'll have its own Engine later on.
+[See Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
 
 ```javascript
 var savings = new LoanCalculatorEngine({
