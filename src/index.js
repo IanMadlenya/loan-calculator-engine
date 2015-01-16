@@ -9,8 +9,9 @@ var LumpSumOperator = require('./operators/lump-sum-operator'),
 	InterestRateOperator = require('./operators/interest-rate-operator'),
 	ExtraRepaymentOperator = require('./operators/extra-repayment-operator');
 
-// Loan Context
-// Holds the input values used in this calculator ie. `principal`, `interestRate`.
+// BaseContext class.
+// Handles the calculator initial state set by the user during
+// the engine initialization.
 class BaseContext {
 	constructor(options, config) {
 		var defaults = {
@@ -32,10 +33,10 @@ class BaseContext {
 		// Extend default values with the options passed in.
 		_.merge(this, defaults, options);
 
-		this.normalizeValues();
+		this.__normalizeValues();
 	}
 
-	normalizeValues() {
+	__normalizeValues() {
 		// Calculate the interest rate per period.
 		this.effInterestRate = CalculatorEngineMath.effInterestRate(
 			this.interestRate, this.interestRateFrequency, this.repaymentFrequency
@@ -48,12 +49,23 @@ class BaseContext {
 	}
 }
 
+// Base class for `ContextItem` and `AmortizationItem`.
+// Must have a period.
 class SummaryItem {
 	constructor(period) {
+		if (_.isUndefined(period)) {
+			throw new Error('SummaryItem: `period` is undefined.');
+		}
+
+		if (_.isNaN(period)) {
+			throw new Error('SummaryItem: `period` must be a number.');
+		}
+
 		this.period = period;
 	}
 }
 
+// Loan info for the given period.
 class ContextItem extends SummaryItem {
 	constructor(period, context) {
 		super(period);
@@ -62,6 +74,7 @@ class ContextItem extends SummaryItem {
 	}
 }
 
+// Loan result for the given period.
 class AmortizationItem extends SummaryItem {
 	constructor(period) {
 		super(period);
@@ -117,7 +130,7 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		this.__startCalculation();
 
 		for (var period = 1; period <= this.__context.effTerm; period++) {
-			// 
+			// Calculate context and amortization
 			var context = this.__calculateContextAt(period),
 				amortization = this.__calculateAmortizationAt(period, context);
 
@@ -144,7 +157,6 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		var prevAmortization = _.last(this.amortizationList);
 
 		// Create new context
-		// Set period and principal amount
 		// Principal amount (pv) is the last amortization's final balance.
 		var context = new ContextItem(period, this.__context);
 		context.principal = prevAmortization.principalBalance;
@@ -168,16 +180,16 @@ class LoanCalculatorEngine extends CalculatorEngine {
 			hasChangedEffInterestRate = prevContext.effInterestRate !== context.effInterestRate;
 
 		// Repayment
-		var repayment = 0;
+		var repayment = prevContext.repayment;
 
-		if (this.__config.isSavingsMode) {
-			repayment = context.repayment;
-		} else if (isInitialPeriod || hasChangedEffInterestRate) {
+		// Only update the repayment if:
+		// Savings mode is off - Savings will always use the initial set repayment AND
+		// Current period is the initial period OR interest rate has changed.
+		if (!this.__config.isSavingsMode && (isInitialPeriod || hasChangedEffInterestRate)) {
 			repayment = this.__calculateRepayment(period, context);
-		} else {
-			repayment = prevContext.repayment;
 		}
 
+		// Update current context
 		context.repayment = repayment;
 
 		// Extra Repayment and Lump Sum
