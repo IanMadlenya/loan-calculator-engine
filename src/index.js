@@ -5,12 +5,14 @@ var _ = require('lodash');
 var CalculatorEngine = require('financial-calculator-engine'),
 	CalculatorEngineMath = require('financial-calculator-engine/lib/math');
 
-var InterestRateOperator = require('./operators/interest-rate-operator'),
+var LumpSumOperator = require('./operators/lump-sum-operator'),
+	InterestRateOperator = require('./operators/interest-rate-operator'),
 	ExtraRepaymentOperator = require('./operators/extra-repayment-operator');
 
-// Loan Context
-// Holds the input values used in this calculator ie. `principal`, `interestRate`.
-class LoanContext {
+// BaseContext class.
+// Handles the calculator initial state set by the user during
+// the engine initialization.
+class BaseContext {
 	constructor(options, config) {
 		var defaults = {
 			principal: 0,
@@ -31,10 +33,10 @@ class LoanContext {
 		// Extend default values with the options passed in.
 		_.merge(this, defaults, options);
 
-		this.normalizeValues();
+		this.__normalizeValues();
 	}
 
-	normalizeValues() {
+	__normalizeValues() {
 		// Calculate the interest rate per period.
 		this.effInterestRate = CalculatorEngineMath.effInterestRate(
 			this.interestRate, this.interestRateFrequency, this.repaymentFrequency
@@ -47,11 +49,36 @@ class LoanContext {
 	}
 }
 
-// Loan Summary
-// Used to store the calculation results ie. amortization table
-class LoanSummary {
-	constructor(periodAt) {
-		this.period = periodAt;
+// Base class for `ContextItem` and `AmortizationItem`.
+// Must have a period.
+class SummaryItem {
+	constructor(period) {
+		if (_.isUndefined(period)) {
+			throw new Error('SummaryItem: `period` is undefined.');
+		}
+
+		if (_.isNaN(period)) {
+			throw new Error('SummaryItem: `period` must be a number.');
+		}
+
+		this.period = period;
+	}
+}
+
+// Loan info for the given period.
+class ContextItem extends SummaryItem {
+	constructor(period, context) {
+		super(period);
+
+		_.merge(this, context);
+	}
+}
+
+// Loan result for the given period.
+class AmortizationItem extends SummaryItem {
+	constructor(period) {
+		super(period);
+
 		this.principalBalance = 0;
 		this.interestBalance = 0;
 		this.interestPaid = 0;
@@ -83,104 +110,116 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		});
 
 		this.use.apply(this, [
+			LumpSumOperator,
+			InterestRateOperator,
 			ExtraRepaymentOperator,
-			InterestRateOperator
 		]);
+
+		this.contextList = null;
+		this.amortizationList = null;
+		this.totals = null;
 	}
 
 	context(options) {
-		return super.context(new LoanContext(options, this.__config));
+		return super.context(new BaseContext(options, this.__config));
 	}
 
 	// Calculates a loan and its ammortization table.
 	// Calculations is done on per period basis.
 	calculate() {
-		var summaryList = [],
-			contextList = [];
-
-		this.__preCalculation(contextList, summaryList);
+		this.__startCalculation();
 
 		for (var period = 1; period <= this.__context.effTerm; period++) {
-			var prevSummary = _.last(summaryList),
-				prevContext = _.last(contextList);
+			// Calculate context and amortization
+			var context = this.__calculateContextAt(period),
+				amortization = this.__calculateAmortizationAt(period, context);
 
-			// Create new current context
-			var context = new LoanContext(this.__context, this.__config);
-			context.principal = prevSummary.principalBalance;
-
-			// Select all operators active at this period.
-			// Operator start and end periods are inclusive.
-			var operators = this.getOperatorsAt(period);
-			_.forEach(operators, function(operator) {
-				// Attach/merge operator's data into context.
-				operator.process(period, context);
-			});
-
-			// Calculate current period's results.
-			var summary = this.__calculateSummaryAt(period, context, prevContext, prevSummary);
-
-			summaryList.push(summary);
-			contextList.push(context);
+			this.contextList.push(context);
+			this.amortizationList.push(amortization);
 
 			// Might not calculate the entire effTerm ie. loan has extra repayment or off set. 
-			if (!this.__config.isSavingsMode && summary.principalBalance <= 0) {
+			if (!this.__config.isSavingsMode && amortization.principalBalance <= 0) {
 				break;
 			}
 		}
 
-		// Sum totals
-		var totals = summaryList.reduce(function(previous, current) {
-			return {
-				repayment: previous.repayment + current.repayment,
-				interestPaid: previous.interestPaid + current.interestPaid
-			};
-		});
-
-		this.__postCalculation(contextList, summaryList, totals);
+		this.__endCalculation();
 
 		return {
-			summaryList,
-			contextList,
-			totals
+			totals: this.totals,
+			contextList: this.contextList,
+			amortizationList: this.amortizationList
 		};
 	}
 
-	__calculateSummaryAt(period, context, prevContext, prevSummary) {
-		var principal = context.principal;
+	// Create new context
+	__calculateContextAt(period) {
+		var prevAmortization = _.last(this.amortizationList);
+
+		// Create new context
+		// Principal amount (pv) is the last amortization's final balance.
+		var context = new ContextItem(period, this.__context);
+		context.principal = prevAmortization.principalBalance;
+
+		// Select all operators active at this period.
+		// Operator start and end periods are inclusive.
+		var operators = this.getOperatorsAt(period);
+		_.forEach(operators, function(operator) {
+			// Merge operator's data into context.
+			operator.process(period, context);
+		});
+
+		return context;
+	}
+
+	// Calculate current period's results.
+	__calculateAmortizationAt(period, context) {
+		var prevContext = _.last(this.contextList);
+
+		var isInitialPeriod = period === 1,
+			hasChangedEffInterestRate = prevContext.effInterestRate !== context.effInterestRate;
 
 		// Repayment
-		var repayment = context.repayment || prevSummary.repayment,
-			mustRecalculateRepayment = this.__mustRecalculateRepayment(repayment, prevContext, context);
+		var repayment = prevContext.repayment;
 
-		if (mustRecalculateRepayment) {
+		// Only update the repayment if:
+		// Savings mode is off - Savings will always use the initial set repayment AND
+		// Current period is the initial period OR interest rate has changed.
+		if (!this.__config.isSavingsMode && (isInitialPeriod || hasChangedEffInterestRate)) {
 			repayment = this.__calculateRepayment(period, context);
 		}
 
-		// Interest
-		var effInterestRate = context.effInterestRate,
-			interestPaid = principal * effInterestRate;
+		// Update current context
+		context.repayment = repayment;
 
-		// Principal
+		// Extra Repayment and Lump Sum
+		repayment += context.effExtraRepayment || 0;
+		repayment += context.lumpSum || 0;
+
+		// Interest Paid
+		var interestPaid = context.principal * context.effInterestRate;
+
+		// Principal Paid and Final Balance
 		var principalPaid = 0,
 			principalBalance = 0;
 
 		if (this.__config.isSavingsMode) {
-			principalBalance = principal + repayment + interestPaid;
+			principalBalance = context.principal + repayment + interestPaid;
 		} else {
-			if (repayment > principal) {
-				repayment = principal + interestPaid;
+			if (repayment > context.principal) {
+				repayment = context.principal + interestPaid;
 			}
 
 			principalPaid = repayment - interestPaid;
-			principalBalance = principal - principalPaid;
+			principalBalance = context.principal - principalPaid;
 		}
 
-		var summary = new LoanSummary(period);
-		summary.repayment = repayment;
-		summary.interestPaid = interestPaid;
-		summary.principalPaid = principalPaid;
-		summary.principalBalance = principalBalance;
-		return summary;
+		var amortization = new AmortizationItem(period);
+		amortization.repayment = repayment;
+		amortization.interestPaid = interestPaid;
+		amortization.principalPaid = principalPaid;
+		amortization.principalBalance = principalBalance;
+		return amortization;
 	}
 
 	__calculateRepayment(period, context) {
@@ -188,11 +227,9 @@ class LoanCalculatorEngine extends CalculatorEngine {
 
 		var principal = context.principal,
 			effInterestRate = context.effInterestRate,
-			effExtraRepayment = context.effExtraRepayment,
 			effTermRemaining = context.effTerm - period + 1;
 
-		var repaymentType = context.repaymentType,
-			isInterestOnly = (repaymentType === LoanCalculatorEngine.repaymentType.interestOnly);
+		var isInterestOnly = context.repaymentType === LoanCalculatorEngine.repaymentType.interestOnly;
 
 		if (isInterestOnly) {
 			repayment = principal * effInterestRate;
@@ -204,50 +241,55 @@ class LoanCalculatorEngine extends CalculatorEngine {
 			);
 		}
 
-		// Extra Repayment
-		if (effExtraRepayment) {
-			repayment += effExtraRepayment;
-		}
-
 		return repayment;
 	}
 
-	__mustRecalculateRepayment(repayment, prevContext, currentContext) {
-		var hasRepayment = (!!repayment),
-			hasChangedEffInterestRate = prevContext.effInterestRate !== currentContext.effInterestRate,
-			hasChangedEffExtraRepayment = prevContext.effExtraRepayment !== currentContext.effExtraRepayment;
-
-		return hasChangedEffInterestRate || hasChangedEffExtraRepayment || !hasRepayment;
+	__startCalculation() {
+		this.__resetResults();
+		this.__calculateInitialPeriod();
 	}
 
-	__preCalculation(contextList, summaryList) {
-		this.__calculateInitialPeriod(contextList, summaryList);
+	__resetResults() {
+		this.amortizationList = [];
+		this.contextList = [];
+		this.totals = null;
 	}
 
-	__calculateInitialPeriod(contextList, summaryList) {
-		var context = new LoanContext(this.__context, this.__config);
+	__calculateInitialPeriod() {
+		var context = new ContextItem(0, this.__context);
 
-		var summary = new LoanSummary(0);
-		summary.principalBalance = context.principal;
+		var amortization = new AmortizationItem(0);
+		amortization.principalBalance = context.principal;
 
-		contextList.push(context);
-		summaryList.push(summary);
+		this.contextList.push(context);
+		this.amortizationList.push(amortization);
 	}
 
-	__postCalculation(contextList, summaryList, totals) {
-		this.__calculateInterestBalance(summaryList, totals);
+	__endCalculation() {
+		this.__calculateTotals();
+		this.__calculateInterestBalance();
 	}
 
-	__calculateInterestBalance(summaryList, totals) {
+	__calculateTotals() {
+		// Sum totals
+		this.totals = this.amortizationList.reduce(function(previous, current) {
+			return {
+				repayment: previous.repayment + current.repayment,
+				interestPaid: previous.interestPaid + current.interestPaid
+			};
+		});
+	}
+
+	__calculateInterestBalance() {
 		var isSavingsMode = this.__config.isSavingsMode,
-			interestBalance = isSavingsMode ? 0 : totals.interestPaid;
+			interestBalance = isSavingsMode ? 0 : this.totals.interestPaid;
 
-		_.forEach(summaryList, function(summary) {
+		_.forEach(this.amortizationList, function(amortization) {
 			interestBalance -= isSavingsMode ?
-				summary.interestPaid * -1 :
-				summary.interestPaid;
+				amortization.interestPaid * -1 :
+				amortization.interestPaid;
 
-			summary.interestBalance = interestBalance;
+			amortization.interestBalance = interestBalance;
 		});
 	}
 }

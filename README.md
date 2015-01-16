@@ -73,6 +73,23 @@ var results = loan
 	.calculate();
 ```
 
+### Lump Sum
+
+```javascript
+var loan = new LoanCalculatorEngine({
+	principal: 100000,
+	interestRate: 0.1,
+	term: 10
+});
+
+var results = loan
+	.lumpSum({
+		period: 12,
+		lumpSum: 100000
+	})
+	.calculate();
+```
+
 ### Savings
 It'll have its own Engine later on.
 
