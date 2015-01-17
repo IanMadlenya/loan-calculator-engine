@@ -90,6 +90,22 @@ var results = loan
 	.calculate();
 ```
 
+### Offset
+
+```javascript
+var loan = new LoanCalculatorEngine({
+	principal: 100000,
+	interestRate: 0.1,
+	term: 10
+});
+
+var results = loan
+	.offset({
+		offset: 10000
+	})
+	.calculate();
+```
+
 ### Savings
 [See Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
 
@@ -110,7 +126,6 @@ var results = savings
 
 ## To do
 
-- offset-operator
 - fee-operator
 
 ## License

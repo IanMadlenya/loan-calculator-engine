@@ -258,3 +258,24 @@ describe('lump sum', function() {
 		assert.equal(helper.round(totals.interestPaid), 45701.13);
 	});
 });
+
+describe('offset', function() {
+	var loan = new LoanCalculatorEngine({
+		principal: 100000,
+		interestRate: 0.1,
+		term: 10
+	});
+
+	var results = loan
+		.offset({
+			offset: 10000
+		})
+		.calculate();
+
+	it('should calculate the totals', function() {
+		var totals = results.totals;
+
+		assert.equal(helper.round(totals.repayment), 143483.73);
+		assert.equal(helper.round(totals.interestPaid), 43483.73);
+	});
+});

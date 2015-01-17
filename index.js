@@ -18,7 +18,7 @@ var _ = require("lodash");
 
 var CalculatorEngine = require("financial-calculator-engine"), CalculatorEngineMath = require("financial-calculator-engine/lib/math");
 
-var LumpSumOperator = require("./operators/lump-sum-operator"), InterestRateOperator = require("./operators/interest-rate-operator"), ExtraRepaymentOperator = require("./operators/extra-repayment-operator");
+var OffsetOperator = require("./operators/offset-operator"), LumpSumOperator = require("./operators/lump-sum-operator"), InterestRateOperator = require("./operators/interest-rate-operator"), ExtraRepaymentOperator = require("./operators/extra-repayment-operator");
 
 // BaseContext class.
 // Handles the calculator initial state set by the user during
@@ -123,7 +123,7 @@ var LoanCalculatorEngine = (function () {
       isSavingsMode: false
     });
 
-    this.use.apply(this, [LumpSumOperator, InterestRateOperator, ExtraRepaymentOperator]);
+    this.use.apply(this, [OffsetOperator, LumpSumOperator, InterestRateOperator, ExtraRepaymentOperator]);
 
     this.contextList = null;
     this.amortizationList = null;
@@ -206,8 +206,11 @@ var LoanCalculatorEngine = (function () {
     repayment += context.effExtraRepayment || 0;
     repayment += context.lumpSum || 0;
 
+    // Offset
+    var offset = context.offset ? context.offset : 0, consideredPrincipal = context.principal - offset;
+
     // Interest Paid
-    var interestPaid = context.principal * context.effInterestRate;
+    var interestPaid = Math.max(consideredPrincipal * context.effInterestRate, 0);
 
     // Principal Paid and Final Balance
     var principalPaid = 0, principalBalance = 0;
