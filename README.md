@@ -56,7 +56,7 @@ var results = loan
 	.calculate(); 
 ```
 
-### Extra Repayments
+### Extra Repayment
 
 ```javascript
 var loan = new LoanCalculatorEngine({
@@ -106,6 +106,23 @@ var results = loan
 	.calculate();
 ```
 
+### Fee (Upfront and Ongoing fees)
+
+```javascript
+var loan = new LoanCalculatorEngine({
+	principal: 100000,
+	interestRate: 0.1,
+	term: 10
+});
+
+var results = loan
+	.fee({
+		upfrontFee: 500,
+		ongoingFee: 100,
+	})
+	.calculate();
+```
+
 ### Savings
 [See Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
 
@@ -126,7 +143,7 @@ var results = savings
 
 ## To do
 
-- fee-operator
+- Expand API documentation.
 
 ## License
 

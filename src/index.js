@@ -5,7 +5,8 @@ var _ = require('lodash');
 var CalculatorEngine = require('financial-calculator-engine'),
 	CalculatorEngineMath = require('financial-calculator-engine/lib/math');
 
-var OffsetOperator = require('./operators/offset-operator'),
+var FeeOperator = require('./operators/fee-operator'),
+	OffsetOperator = require('./operators/offset-operator'),
 	LumpSumOperator = require('./operators/lump-sum-operator'),
 	InterestRateOperator = require('./operators/interest-rate-operator'),
 	ExtraRepaymentOperator = require('./operators/extra-repayment-operator');
@@ -111,6 +112,7 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		});
 
 		this.use.apply(this, [
+			FeeOperator,
 			OffsetOperator,
 			LumpSumOperator,
 			InterestRateOperator,
@@ -199,7 +201,7 @@ class LoanCalculatorEngine extends CalculatorEngine {
 		repayment += context.lumpSum || 0;
 
 		// Offset
-		var offset = context.offset ? context.offset : 0,
+		var offset = context.offset || 0,
 			consideredPrincipal = context.principal - offset;
 
 		// Interest Paid
@@ -219,6 +221,9 @@ class LoanCalculatorEngine extends CalculatorEngine {
 			principalPaid = repayment - interestPaid;
 			principalBalance = context.principal - principalPaid;
 		}
+
+		// Fee
+		repayment += context.fee || 0;
 
 		var amortization = new AmortizationItem(period);
 		amortization.repayment = repayment;

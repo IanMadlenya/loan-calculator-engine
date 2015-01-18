@@ -279,3 +279,26 @@ describe('offset', function() {
 		assert.equal(helper.round(totals.interestPaid), 43483.73);
 	});
 });
+
+describe('fee', function() {
+	var loan = new LoanCalculatorEngine({
+		principal: 100000,
+		interestRate: 0.1,
+		term: 10
+	});
+
+	var results = loan
+		.fee({
+			upfrontFee: 500,
+			ongoingFee: 100,
+			ongoingFeeFrequency: 12
+		})
+		.calculate();
+
+	it('should calculate the totals', function() {
+		var totals = results.totals;
+
+		assert.equal(helper.round(totals.repayment), 171080.88);
+		assert.equal(helper.round(totals.interestPaid), 58580.88);
+	});
+});
