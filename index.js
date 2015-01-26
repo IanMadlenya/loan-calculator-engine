@@ -107,9 +107,9 @@ var AmortizationItem = (function () {
 // var LoanCalculatorEngine = require('financial-loan-calculator-engine');
 //
 // var loan = new LoanCalculatorEngine({
-// 	principal: 100000,
-// 	interestRate: 0.1,
-// 	term: 10
+//  principal: 100000,
+//  interestRate: 0.1,
+//  term: 10
 // });
 //
 // var results = loan.calculate();

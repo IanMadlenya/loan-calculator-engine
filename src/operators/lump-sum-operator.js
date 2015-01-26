@@ -23,40 +23,40 @@ var CalculatorEngineOperator = require('financial-calculator-engine/lib/operator
 // Exports the `resolver` method.
 // Takes the `engine` instance as a parameter.
 module.exports = function(engine) {
-	// Adds entry point `lumpSum()` on the `engine` instance.
-	engine.lumpSum = function(options) {
-		this.addOperator(new LumpSumOperator(options));
-		return this;
-	};
+  // Adds entry point `lumpSum()` on the `engine` instance.
+  engine.lumpSum = function(options) {
+    this.addOperator(new LumpSumOperator(options));
+    return this;
+  };
 
-	// Extension plugin for the loan repayment calculator.
-	// Adds lump sum context to the loan for a given period of time.
-	class LumpSumOperator extends CalculatorEngineOperator {
-		// Options available:
-		// `period` and `lumpSum`
-		constructor(options) {
-			super('lump-sum', {
-				startPeriod: options.period,
-				endPeriod: options.period
-			});
+  // Extension plugin for the loan repayment calculator.
+  // Adds lump sum context to the loan for a given period of time.
+  class LumpSumOperator extends CalculatorEngineOperator {
+    // Options available:
+    // `period` and `lumpSum`
+    constructor(options) {
+      super('lump-sum', {
+        startPeriod: options.period,
+        endPeriod: options.period
+      });
 
-			// Default options
-			var defaults = {
-				lumpSum: 0
-			};
+      // Default options
+      var defaults = {
+        lumpSum: 0
+      };
 
-			// Extend the default object with the `options` passed in.
-			// Assigns it to the internal context.
-			this.context = _.merge({}, defaults, {
-				lumpSum: options.lumpSum,
-			});
-		}
+      // Extend the default object with the `options` passed in.
+      // Assigns it to the internal context.
+      this.context = _.merge({}, defaults, {
+        lumpSum: options.lumpSum,
+      });
+    }
 
-		// Adds new information to loan context.
-		// Properties: `lumpSum`.
-		process(period, context) {
-			// Merge operator's context into loan's context.
-			super.process(context);
-		}
-	}
+    // Adds new information to loan context.
+    // Properties: `lumpSum`.
+    process(period, context) {
+      // Merge operator's context into loan's context.
+      super.process(context);
+    }
+  }
 };

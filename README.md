@@ -18,9 +18,9 @@ var LoanCalculatorEngine = require('financial-loan-calculator-engine');
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10
 });
 
 var results = loan.calculate();
@@ -30,10 +30,10 @@ var results = loan.calculate();
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10,
-	repaymentType: 'IO'
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10,
+  repaymentType: 'IO'
 });
 
 var results = loan.calculate();
@@ -43,84 +43,84 @@ var results = loan.calculate();
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10
 });
 
 var results = loan
-	.interestRate({
-		endPeriod: 12,
-		interestRate: 0.15
-	})
-	.calculate(); 
+  .interestRate({
+    endPeriod: 12,
+    interestRate: 0.15
+  })
+  .calculate(); 
 ```
 
 ### Extra Repayment
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10
 });
 
 var results = loan
-	.extraRepayment({
-		startPeriod: 13,
-		extraRepayment: 100
-	})
-	.calculate();
+  .extraRepayment({
+    startPeriod: 13,
+    extraRepayment: 100
+  })
+  .calculate();
 ```
 
 ### Lump Sum
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10
 });
 
 var results = loan
-	.lumpSum({
-		period: 12,
-		lumpSum: 100000
-	})
-	.calculate();
+  .lumpSum({
+    period: 12,
+    lumpSum: 100000
+  })
+  .calculate();
 ```
 
 ### Offset
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10
 });
 
 var results = loan
-	.offset({
-		offset: 10000
-	})
-	.calculate();
+  .offset({
+    offset: 10000
+  })
+  .calculate();
 ```
 
 ### Fee (Upfront and Ongoing fees)
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-	principal: 100000,
-	interestRate: 0.1,
-	term: 10
+  principal: 100000,
+  interestRate: 0.1,
+  term: 10
 });
 
 var results = loan
-	.fee({
-		upfrontFee: 500,
-		ongoingFee: 100,
-	})
-	.calculate();
+  .fee({
+    upfrontFee: 500,
+    ongoingFee: 100,
+  })
+  .calculate();
 ```
 
 ### Savings
@@ -128,17 +128,17 @@ var results = loan
 
 ```javascript
 var savings = new LoanCalculatorEngine({
-	principal: 500,
-	interestRate: 0.1,
-	term: 10,
-	repayment: 100
+  principal: 500,
+  interestRate: 0.1,
+  term: 10,
+  repayment: 100
 });
 
 var results = savings
-	.config({
-		isSavingsMode: true
-	})
-	.calculate();
+  .config({
+    isSavingsMode: true
+  })
+  .calculate();
 ```
 
 ## To do
