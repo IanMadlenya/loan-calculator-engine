@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "preupdate": "echo 'Bumping version'",
+    "postcommit": "git push && git push --tags",
+    "postupdate": "echo 'Updated to version %s in manifest files'"
+  }
+}
