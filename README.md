@@ -1,4 +1,4 @@
-# loan-calculator-engine
+# loan-calculator-engine [![Build Status](https://travis-ci.org/financial-calcs/loan-calculator-engine.svg?branch=master)](https://travis-ci.org/financial-calcs/loan-calculator-engine)
 
 > Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
 
