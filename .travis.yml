@@ -7,3 +7,5 @@ deploy:
     secure: mga76KTwEGu0UfU1TcIobxUVdTgFR5//HBkEbkIm8uU4aSX1JkH7/6VmaMnr/gwvlfk65k0OUnoXlSIDYuYa70zbzTQBUqX+d8fxhtjobkwEZvwW2wXso2qAIiF5WEpjbjCBdxeparv5+l9CS9Oly5BYqwq5QNF/bsehMJax6z8=
   on:
     tags: true
+    # Change when this is fixed: https://github.com/travis-ci/travis-ci/issues/1675
+    all_branches: true
