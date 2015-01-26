@@ -17,7 +17,8 @@
     "financial",
     "loan",
     "calculator",
-    "engine"
+    "engine",
+    "browserify"
   ],
   "dependencies": {
     "lodash": "^2.4.1",
