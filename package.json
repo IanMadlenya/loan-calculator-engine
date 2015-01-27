@@ -34,7 +34,7 @@
     "vinyl-source-stream": "^1.0.0"
   },
   "scripts": {
-    "test": "gulp mocha",
+    "test": "gulp test",
     "browser": "browserify index.js > browser.js"
   }
 }
