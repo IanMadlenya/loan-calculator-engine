@@ -145,6 +145,13 @@ var results = savings
 
 - Expand API documentation.
 
+## SemVer
+
+We follow [Semantic Versioning](http://semver.org/). But it still before `1.0.0`, and for now version number follows this rules:
+
+* If major breaking changes introduced, then MINOR (middle) number is incremented
+* If there are no breaking changes, or only minor, which probably won't affect anybody, then PATCH (last) number is incremented
+
 ## License
 
 MIT © [Pablo De Nadai](http://pablodenadai.com)
