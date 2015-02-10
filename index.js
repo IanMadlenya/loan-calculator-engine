@@ -20,6 +20,40 @@ var CalculatorEngine = require("financial-calculator-engine"), CalculatorEngineM
 
 var FeeOperator = require("./operators/fee-operator"), OffsetOperator = require("./operators/offset-operator"), LumpSumOperator = require("./operators/lump-sum-operator"), InterestRateOperator = require("./operators/interest-rate-operator"), ExtraRepaymentOperator = require("./operators/extra-repayment-operator");
 
+// Base context handles the calculator initial state set by the user during
+// the engine initialization.
+var Context = function Context(options, config) {
+  var defaults = {
+    presentValue: 0,
+
+    interestRate: 0,
+    interestRateFrequency: config.frequency.year,
+    effInterestRate: 0,
+
+    term: 0,
+    termFrequency: config.frequency.year,
+    effTerm: 0,
+
+    repayment: 0,
+    repaymentType: LoanCalculatorEngine.repaymentType.principalAndInterest,
+    repaymentFrequency: config.frequency.month
+  };
+
+  // Extend default values with the options passed in.
+  _.merge(this, defaults, options);
+
+  // Calculate effective values eg. normalize the repayment frequency.
+  this.__normalizeValues();
+};
+
+Context.prototype.__normalizeValues = function () {
+  // Calculate the interest rate per period.
+  this.effInterestRate = CalculatorEngineMath.effInterestRate(this.interestRate, this.interestRateFrequency, this.repaymentFrequency);
+
+  // Calculate the total number of periods for a given loan.
+  this.effTerm = CalculatorEngineMath.effTerm(this.term, this.termFrequency, this.repaymentFrequency);
+};
+
 var Amortization = function Amortization() {
   this.futureValue = 0;
   this.repayment = 0;
@@ -55,35 +89,10 @@ var LoanCalculatorEngine = (function () {
   _inherits(LoanCalculatorEngine, _CalculatorEngine);
 
   LoanCalculatorEngine.prototype.context = function (options) {
-    if (!options) {
-      return _CalculatorEngine.prototype.context.call(this);
+    if (options) {
+      var config = this.config();
+      options = new Context(options, config);
     }
-
-    var config = this.config();
-
-    var defaultsOptions = {
-      presentValue: 0,
-
-      interestRate: 0,
-      interestRateFrequency: config.frequency.year,
-      effInterestRate: 0,
-
-      term: 0,
-      termFrequency: config.frequency.year,
-      effTerm: 0,
-
-      repayment: 0,
-      repaymentType: LoanCalculatorEngine.repaymentType.principalAndInterest,
-      repaymentFrequency: config.frequency.month
-    };
-
-    options = _.merge({}, defaultsOptions, options);
-
-    // Calculate the interest rate per period.
-    options.effInterestRate = CalculatorEngineMath.effInterestRate(options.interestRate, options.interestRateFrequency, options.repaymentFrequency);
-
-    // Calculate the total number of periods for a given loan.
-    options.effTerm = CalculatorEngineMath.effTerm(options.term, options.termFrequency, options.repaymentFrequency);
 
     return _CalculatorEngine.prototype.context.call(this, options);
   };
