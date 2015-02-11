@@ -1,18 +1,46 @@
 "use strict";
 
-var _inherits = function (child, parent) {
-  child.prototype = Object.create(parent && parent.prototype, {
+var _prototypeProperties = function (child, staticProps, instanceProps) {
+  if (staticProps) Object.defineProperties(child, staticProps);
+  if (instanceProps) Object.defineProperties(child.prototype, instanceProps);
+};
+
+var _get = function get(object, property, receiver) {
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return get(parent, property, receiver);
+    }
+  } else if ("value" in desc && desc.writable) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+    if (getter === undefined) {
+      return undefined;
+    }
+    return getter.call(receiver);
+  }
+};
+
+var _inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
     constructor: {
-      value: child,
+      value: subClass,
       enumerable: false,
       writable: true,
       configurable: true
     }
   });
-  if (parent) child.__proto__ = parent;
+  if (superClass) subClass.__proto__ = superClass;
 };
-
-"use strict";
 
 var _ = require("lodash");
 
@@ -45,38 +73,43 @@ module.exports = function (engine) {
 
   // Extension plugin for the loan repayment calculator.
   // Adds lump sum context to the loan for a given period of time.
-  var LumpSumOperator = (function () {
-    var _CalculatorEngineOperator = CalculatorEngineOperator;
-    var LumpSumOperator = (
-      // Options available:
-      // `period` and `lumpSum`
-      function LumpSumOperator(options) {
-        _CalculatorEngineOperator.call(this, "lump-sum", {
-          startPeriod: options.period,
-          endPeriod: options.period
-        });
+  var LumpSumOperator = (function (CalculatorEngineOperator) {
+    // Options available:
+    // `period` and `lumpSum`
+    function LumpSumOperator(options) {
+      _get(Object.getPrototypeOf(LumpSumOperator.prototype), "constructor", this).call(this, "lump-sum", {
+        startPeriod: options.period,
+        endPeriod: options.period
+      });
 
-        // Default options
-        var defaults = {
-          lumpSum: 0
-        };
+      // Default options
+      var defaults = {
+        lumpSum: 0
+      };
 
-        // Extend the default object with the `options` passed in.
-        // Assigns it to the internal context.
-        this.context = _.merge({}, defaults, {
-          lumpSum: options.lumpSum });
+      // Extend the default object with the `options` passed in.
+      // Assigns it to the internal context.
+      this.context = _.merge({}, defaults, {
+        lumpSum: options.lumpSum });
+    }
+
+    _inherits(LumpSumOperator, CalculatorEngineOperator);
+
+    _prototypeProperties(LumpSumOperator, null, {
+      process: {
+
+        // Adds new information to loan context.
+        // Properties: `lumpSum`.
+        value: function process(period, context) {
+          // Merge operator's context into loan's context.
+          _get(Object.getPrototypeOf(LumpSumOperator.prototype), "process", this).call(this, context);
+        },
+        writable: true,
+        enumerable: true,
+        configurable: true
       }
-    );
-
-    _inherits(LumpSumOperator, _CalculatorEngineOperator);
-
-    // Adds new information to loan context.
-    // Properties: `lumpSum`.
-    LumpSumOperator.prototype.process = function (period, context) {
-      // Merge operator's context into loan's context.
-      _CalculatorEngineOperator.prototype.process.call(this, context);
-    };
+    });
 
     return LumpSumOperator;
-  })();
+  })(CalculatorEngineOperator);
 };
