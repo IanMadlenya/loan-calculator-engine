@@ -18,7 +18,7 @@ var LoanCalculatorEngine = require('financial-loan-calculator-engine');
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10
 });
@@ -30,7 +30,7 @@ var results = loan.calculate();
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10,
   repaymentType: 'IO'
@@ -43,7 +43,7 @@ var results = loan.calculate();
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10
 });
@@ -60,7 +60,7 @@ var results = loan
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10
 });
@@ -77,7 +77,7 @@ var results = loan
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10
 });
@@ -94,7 +94,7 @@ var results = loan
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10
 });
@@ -110,7 +110,7 @@ var results = loan
 
 ```javascript
 var loan = new LoanCalculatorEngine({
-  principal: 100000,
+  presentValue: 100000,
   interestRate: 0.1,
   term: 10
 });
@@ -126,20 +126,6 @@ var results = loan
 ### Savings
 [See Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
 
-```javascript
-var savings = new LoanCalculatorEngine({
-  principal: 500,
-  interestRate: 0.1,
-  term: 10,
-  repayment: 100
-});
-
-var results = savings
-  .config({
-    isSavingsMode: true
-  })
-  .calculate();
-```
 
 ## To do
 
