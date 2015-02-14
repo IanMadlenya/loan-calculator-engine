@@ -3,13 +3,11 @@
 > Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
 
 ## Install
-
 ```
 $ npm install --save financial-loan-calculator-engine
 ```
 
 ## API
-
 ### Constructor
 #### presentValue
 Type: `number`  
@@ -78,13 +76,11 @@ Returns:
 ```
 
 ## Usage
-
 ```javascript
 var LoanCalculatorEngine = require('financial-loan-calculator-engine');
 ```
 
 ### Simple Loan (Principal and Interest)
-
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -96,7 +92,6 @@ var results = loan.calculate();
 ```
 
 ### Simple Loan (Interest only)
-
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -109,7 +104,6 @@ var results = loan.calculate();
 ```
 
 ### Interest Intro Rate
-
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -138,9 +132,12 @@ End period when the given interest rate will stop being taken into account.
 Type: `number`  
 Default: `0`  
 Interest rate in decimals (2% => 0.02).
+##### interestRateFrequency 
+Type: `number`  
+Default: `1`  
+Interest rate frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
 
 ### Extra Repayment
-
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -156,8 +153,25 @@ var results = loan
   .calculate();
 ```
 
-### Lump Sum
+#### API
+##### startPeriod
+Type: `number`  
+Default: `1`  
+Start period when the given extra repayment amount will be taken into account.
+##### endPeriod
+Type: `number`  
+Default: `Number.POSITIVE_INFINITY`  
+End period when the given extra repayment amount will stop being taken into account.
+##### extraRepayment
+Type: `number`  
+Default: `0`  
+Extra repayment amount.
+##### extraRepaymentFrequency
+Type: `number`  
+Default: `12`  
+Extra repayment frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
 
+### Lump Sum
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -173,8 +187,17 @@ var results = loan
   .calculate();
 ```
 
-### Offset
+#### API
+##### period
+Type: `number`  
+Default: `0`  
+Period when the given lump sum amount will be taken into account.
+##### extraRepayment
+Type: `number`  
+Default: `0`  
+Lump sum amount.
 
+### Offset
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -189,8 +212,13 @@ var results = loan
   .calculate();
 ```
 
-### Fee (Upfront and Ongoing fees)
+#### API
+##### offset
+Type: `number`  
+Default: `0`  
+Offset amount.
 
+### Fee (Upfront and Ongoing fees)
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -206,18 +234,33 @@ var results = loan
   .calculate();
 ```
 
+#### API
+##### upfrontFee
+Type: `number`  
+Default: `0`  
+Upfront fee amount paid in the first period.
+##### ongoingFee
+Type: `number`  
+Default: `0`  
+Ongoing fee amount.
+##### startPeriod
+Type: `number`  
+Default: `1`  
+Start period when the ongoing fee amount will be taken into account.
+##### endPeriod
+Type: `number`  
+Default: `Number.POSITIVE_INFINITY`  
+End period when the ongoing fee amount will stop being taken into account.
+##### ongoingFeeFrequency
+Type: `number`  
+Default: `12`  
+Ongoing fee frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
+
 ### Savings
 [See Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
 
-
-## To do
-
-- Expand API documentation.
-
 ## SemVer
-
 We follow [Semantic Versioning](http://semver.org/).
 
 ## License
-
 MIT © [Pablo De Nadai](http://pablodenadai.com)
