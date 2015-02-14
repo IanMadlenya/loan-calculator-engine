@@ -8,6 +8,75 @@
 $ npm install --save financial-loan-calculator-engine
 ```
 
+## API
+
+### Constructor
+#### presentValue
+Type: `number`  
+Default: `0`  
+Loan amount to be borrowed aka. principal or present value.
+#### interestRate 
+Type: `number`  
+Default: `0`  
+Interest rate in decimals eg. 2% should be set as `0.02`.
+#### interestRateFrequency 
+Type: `number`  
+Default: `1`  
+Interest rate frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
+#### term 
+Type: `number`  
+Default: `0`  
+Length of the loan.
+#### termFrequency 
+Type: `number`  
+Default: `1`  
+Term frequency where: `1` => years, `12` => months, `26` => fortnights, `52` => weeks.
+#### repaymentType 
+Type: `string`  
+Default: `'PI'`  
+Repayment type where: `'PI'` => Principal and Interest, `'IO'` => Interest only.
+#### repaymentFrequency
+Type: `number`  
+Default: `12`  
+Amortization frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
+
+### Methods
+### .calculate() 
+Type: `function`  
+Calculates the loan and returns the totals, including schedule list which contains the context (inputs) and amortization for each period.
+Returns:  
+```json
+{
+  "totals": {
+    "repayment": 0,
+    "interestPaid": 0
+  },
+  "scheduleList": [
+    {
+      "period": 0,
+      "context": {
+        "presentValue": 0,
+        "interestRate": 0,
+        "interestRateFrequency": 0,
+        "effInterestRate": 0,
+        "term": 0,
+        "termFrequency": 0,
+        "effTerm": 0,
+        "repayment": 0,
+        "repaymentType": "",
+        "repaymentFrequency": 0
+      },
+      "amortization": {
+        "futureValue": 0,
+        "repayment": 0,
+        "interestPaid": 0,
+        "principalPaid": 0
+      }
+    }
+  ]
+}
+```
+
 ## Usage
 
 ```javascript
@@ -55,6 +124,20 @@ var results = loan
   })
   .calculate(); 
 ```
+
+#### API
+##### startPeriod
+Type: `number`  
+Default: `1`  
+Start period when the given interest rate will be taken into account.
+##### endPeriod
+Type: `number`  
+Default: `Number.POSITIVE_INFINITY`  
+End period when the given interest rate will stop being taken into account.
+##### interestRate
+Type: `number`  
+Default: `0`  
+Interest rate in decimals (2% => 0.02).
 
 ### Extra Repayment
 
