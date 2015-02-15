@@ -2,6 +2,24 @@
 
 > Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
 
+## Table of Contents
+- [Install](#)
+- [API](#)
+	- [Constructor](#)
+	- [Methods](#)
+	  - [.calculate()](#)
+- [Usage](#)
+	- [Simple Loan (Principal and Interest)](#)
+	- [Simple Loan (Interest Only)](#)
+	- [Multiple Interest Rates](#)
+	- [Extra Repayment](#)
+	- [Lump Sum](#)
+	- [Offset](#)
+	- [Fee (Upfront and Ongoing Fees)](#)
+- [Related Projects](#)
+- [SemVer](#)
+- [License](#)
+
 ## Install
 ```
 $ npm install --save financial-loan-calculator-engine
@@ -39,9 +57,9 @@ Default: `12`
 Amortization frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
 
 ### Methods
-### .calculate() 
+#### .calculate() 
 Type: `function`  
-Calculates the loan and returns the totals, including schedule list which contains the context (inputs) and amortization for each period.
+Calculates the loan and returns the totals, including schedule list which contains the context (inputs) and amortization for each period.  
 Returns:  
 ```json
 {
@@ -91,7 +109,7 @@ var loan = new LoanCalculatorEngine({
 var results = loan.calculate();
 ```
 
-### Simple Loan (Interest only)
+### Simple Loan (Interest Only)
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -103,7 +121,7 @@ var loan = new LoanCalculatorEngine({
 var results = loan.calculate();
 ```
 
-### Interest Intro Rate
+### Multiple Interest Rates
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -218,7 +236,7 @@ Type: `number`
 Default: `0`  
 Offset amount.
 
-### Fee (Upfront and Ongoing fees)
+### Fee (Upfront and Ongoing Fees)
 ```javascript
 var loan = new LoanCalculatorEngine({
   presentValue: 100000,
@@ -256,8 +274,8 @@ Type: `number`
 Default: `12`  
 Ongoing fee frequency where: `1` => yearly, `12` => monthly, `26` => fortnightly, `52` => weekly.
 
-### Savings
-[See Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
+## Related Projects
+- [Savings calculator engine.](https://github.com/financial-calcs/savings-calculator-engine)
 
 ## SemVer
 We follow [Semantic Versioning](http://semver.org/).
