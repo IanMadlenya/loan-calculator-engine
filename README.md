@@ -3,22 +3,22 @@
 > Loan repayment calculator engine. Calculates amortization table, repayment amount and interest paid.
 
 ## Table of Contents
-- [Install](#)
-- [API](#)
-	- [Constructor](#)
-	- [Methods](#)
-	  - [.calculate()](#)
-- [Usage](#)
-	- [Simple Loan (Principal and Interest)](#)
-	- [Simple Loan (Interest Only)](#)
-	- [Multiple Interest Rates](#)
-	- [Extra Repayment](#)
-	- [Lump Sum](#)
-	- [Offset](#)
-	- [Fee (Upfront and Ongoing Fees)](#)
-- [Related Projects](#)
-- [SemVer](#)
-- [License](#)
+- [Install](#install)
+- [API](#api)
+	- [Constructor](#constructor)
+	- [Methods](#methods)
+	  - [.calculate()](#calculate)
+- [Usage](#usage)
+	- [Simple Loan (Principal and Interest)](#simple-loan-principal-and-interest)
+	- [Simple Loan (Interest Only)](#simple-loan-interest-only)
+	- [Multiple Interest Rates](#multiple-interest-rates)
+	- [Extra Repayment](#extra-repayment)
+	- [Lump Sum](#lump-sum)
+	- [Offset](#offset)
+	- [Fee (Upfront and Ongoing Fees)](#fee-upfront-and-ongoing-fees)
+- [Related Projects](#related-projects)
+- [SemVer](#semver)
+- [License](#license)
 
 ## Install
 ```
