@@ -23,4 +23,20 @@ gulp.task('test', ['lint'], function() {
     .pipe(mocha());
 });
 
-gulp.task('default', ['test']);
+var browserify = require('browserify'),
+  source = require('vinyl-source-stream');
+
+gulp.task('browserify', ['test'], function() {
+  return browserify()
+    .require('./index.js', {
+      expose: 'financial-loan-calculator-engine'
+    })
+    .transform('browserify-shim', {
+      global: true
+    })
+    .bundle()
+    .pipe(source('index.browser.js'))
+    .pipe(gulp.dest('./'));
+});
+
+gulp.task('default', ['browserify']);

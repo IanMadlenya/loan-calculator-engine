@@ -25,6 +25,8 @@
     "financial-calculator-engine": "~1.0.1"
   },
   "devDependencies": {
+    "browserify": "^9.0.3",
+    "browserify-shim": "^3.8.3",
     "gulp": "^3.8.10",
     "gulp-6to5": "^2.0.0",
     "gulp-jshint": "^1.9.0",
@@ -36,5 +38,11 @@
   "scripts": {
     "test": "gulp test",
     "browser": "browserify index.js > browser.js"
+  },
+  "browserify-shim": {
+    "lodash": "global:_"
+  },
+  "browserify": {
+    "transform": ["browserify-shim"]
   }
 }
