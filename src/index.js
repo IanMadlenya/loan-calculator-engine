@@ -3,7 +3,8 @@
 var _ = require('lodash');
 
 var CalculatorEngine = require('financial-calculator-engine'),
-  CalculatorEngineMath = require('financial-calculator-engine/lib/math');
+  // CalculatorEngineMath = require('financial-calculator-engine/lib/math');
+  CalculatorEngineMath = require('./../calculator-engine/lib/math');
 
 var FeeOperator = require('./operators/fee-operator'),
   OffsetOperator = require('./operators/offset-operator'),
@@ -44,6 +45,19 @@ class Context {
       this.interestRate, this.interestRateFrequency, this.repaymentFrequency
     );
 
+    // Calculate the term if not available.
+    // Useful for calculating dynamic term
+    // based on principal, interest and repayment.
+    if (!this.term) {
+      var nper = CalculatorEngineMath.nper(
+        this.presentValue,
+        this.effInterestRate,
+        this.repayment
+      );
+
+      this.term = nper / this.repaymentFrequency;
+    }
+
     // Calculate the total number of periods for a given loan.
     this.effTerm = CalculatorEngineMath.effTerm(
       this.term, this.termFrequency, this.repaymentFrequency
@@ -61,7 +75,7 @@ class Amortization {
 }
 
 // Loan Calculator Engine
-// Calculates a loan and its ammortization table.
+// Calculates a loan and its amortization table.
 // Example:
 // ```
 // var LoanCalculatorEngine = require('financial-loan-calculator-engine');
