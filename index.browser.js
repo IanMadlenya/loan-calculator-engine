@@ -151,6 +151,18 @@ var pmt = function (principal, effInterestRate, effTerm) {
   return result;
 };
 
+// Calculates the number of repayment periods
+// (at the same frequency as the effInterestRate value)
+// required to pay off the loan.
+var nper = function (principal, effInterestRate, repayment) {
+  var part1 = Math.log(1 - effInterestRate * principal / repayment),
+      part2 = Math.log(1 + effInterestRate);
+
+  var result = -part1 / part2;
+
+  return result;
+};
+
 // Formula: `r = ((FV / PV) ^ (1 / Y)) - 1`
 var rateOfReturn = function (pv, fv, y) {
   var r = Math.pow(fv / pv, 1 / y) - 1;
@@ -175,6 +187,7 @@ var effExtraRepayment = function (extraRepayment, extraRepaymentFrequency, repay
 
 module.exports = {
   pmt: pmt,
+  nper: nper,
   rateOfReturn: rateOfReturn,
   effTerm: effTerm,
   effInterestRate: effInterestRate,
@@ -948,6 +961,15 @@ var Context = (function () {
         // Calculate the interest rate per period.
         this.effInterestRate = CalculatorEngineMath.effInterestRate(this.interestRate, this.interestRateFrequency, this.repaymentFrequency);
 
+        // Calculate the term if not available.
+        // Useful for calculating dynamic term
+        // based on principal, interest and repayment.
+        if (!this.term) {
+          var nper = CalculatorEngineMath.nper(this.presentValue, this.effInterestRate, this.repayment);
+
+          this.term = nper / this.repaymentFrequency;
+        }
+
         // Calculate the total number of periods for a given loan.
         this.effTerm = CalculatorEngineMath.effTerm(this.term, this.termFrequency, this.repaymentFrequency);
       },
@@ -968,7 +990,7 @@ var Amortization = function Amortization() {
 };
 
 // Loan Calculator Engine
-// Calculates a loan and its ammortization table.
+// Calculates a loan and its amortization table.
 // Example:
 // ```
 // var LoanCalculatorEngine = require('financial-loan-calculator-engine');

@@ -45,9 +45,7 @@ var _prototypeProperties = function (child, staticProps, instanceProps) {
 var _ = require("lodash");
 
 var CalculatorEngine = require("financial-calculator-engine"),
-
-// CalculatorEngineMath = require('financial-calculator-engine/lib/math');
-CalculatorEngineMath = require("./../calculator-engine/lib/math");
+    CalculatorEngineMath = require("financial-calculator-engine/lib/math");
 
 var FeeOperator = require("./operators/fee-operator"),
     OffsetOperator = require("./operators/offset-operator"),
