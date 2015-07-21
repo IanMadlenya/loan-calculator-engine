@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "lodash": "^3.0.0",
-    "financial-calculator-engine": "~1.0.1"
+    "financial-calculator-engine": "~1.0.2"
   },
   "devDependencies": {
     "browserify": "^9.0.3",
