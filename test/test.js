@@ -277,18 +277,19 @@ describe('fee', function() {
 });
 
 describe('dynamic term and fixed repayment', function() {
-  var loan = new LoanCalculatorEngine({
-    presentValue: 100000,
-    interestRate: 0.1,
-    repayment: 1321.51
-  });
+  it('should calculate the repayment (term monthly, interest yearly)', function(){
+    var loan = new LoanCalculatorEngine({
+      presentValue: 3000,
+      interestRate: 0.0975,
+      termFrequency: 12,
+      repayment: 138.09,
+      repaymentFrequency: 12
+    });
 
-  loan.calculate();
+    loan.calculate();
 
-  it('should calculate the repayment', function(){
     var context = loan.context();
-    assert.equal(helper.round(context.term), 10);
-    assert.equal(helper.round(context.effTerm), 120);
 
+    assert.equal(context.term, 24);
   });
 });

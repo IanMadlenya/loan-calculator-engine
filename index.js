@@ -92,7 +92,10 @@ var Context = (function () {
         if (!this.term) {
           var nper = CalculatorEngineMath.nper(this.presentValue, this.effInterestRate, this.repayment);
 
-          this.term = nper / this.repaymentFrequency;
+          this.term = nper; // / this.termFrequency;
+          // this.term = CalculatorEngineMath.effTerm(
+          //   nper, this.termFrequency, this.interestRateFrequency
+          // );
         }
 
         // Calculate the total number of periods for a given loan.

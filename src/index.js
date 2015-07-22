@@ -54,7 +54,7 @@ class Context {
         this.repayment
       );
 
-      this.term = nper / this.repaymentFrequency;
+      this.term = Math.round(nper);
     }
 
     // Calculate the total number of periods for a given loan.
